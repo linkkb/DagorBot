@@ -6,7 +6,8 @@ import random
 import re
 
 
-TOKEN = open("secret.txt","r").readlines()[0]
+TOKEN = open("secret.txt","r").readlines()[0][:-1]
+print(TOKEN)
 
 client = discord.Client()
 
@@ -50,6 +51,29 @@ async def on_message(message):
 		#DISPLAY
 		msg = ('{0.author.mention} rolled ' + roll + ' and got **' + str(rollResultMod) + '**.\n*' + rollNat + ' = (' + str(rollList)[1:-1] + ').*').format(message)
 		await client.send_message(message.channel, msg)
+		
+		
+	if message.content.startswith('.devroll'):
+		print("doing devroll")
+		results = []
+		dicepools = []
+		total = 0
+		rolls = re.findall(r"[\+\-]?[0-9a-zA-Z]+", message.content.split(" ")[1])
+		for roll in rolls:
+			(result, dice) = makeroll(roll)
+			results.append(result)
+			dicepools.append(dice)
+			total += result
+		for i in range(len(rolls)):
+			output = "{0} = {1} ({2})".format(rolls[i], str(results[i]), str(dicepools[i]))
+			await client.send_message(message.channel, output)			
+		await client.send_message(message.channel, "Total = {0} ({1})".format(str(total),str(results)))
+
+
+def makeroll(str):
+	result = 6
+	dice = [1,2,3]
+	return (result,dice)
 
 @client.event
 async def on_ready():
